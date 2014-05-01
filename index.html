@@ -1,32 +1,97 @@
+<!DOCTYPE html>
 <html>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
     <head>
+        <style>
+            html, body {
+                text-align: center;
+                font-family: Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
+                font-size: large;
+
+                height:100%;
+                width:100%;
+                margin:0px;
+            }
+            body {
+                display:table;
+                vertical-align:middle;
+                text-align:center;
+            }
+            div.vertical-center {
+                display:table-cell;
+                vertical-align:middle;
+            }
+            div {
+                margin: 20px;
+            }
+        </style>
     </head>
     <body>
-        <div id="page_like_count">Loading</div>
+        <div class="vertical-center">
+            <div id="page_likes">Loading</div>
+            <div id="qrcode"></div>
+            <div id="like_url"></div>
+        </div>
         <script src="jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="jquery.qrcode.min.js"></script>
         <script>
+
+            var REFRESH_PERIOD = 1000;  // ms
+            var FADE_PERIOD = 600;      // ms
+
             var APP_ID = "plate.tw";
+            var FACEBOOK_SHORT_URL = "http://fb.com/";
             var FACEBOOK_GRAPH = "https://graph.facebook.com/";
 
+            var global_last_likes = -1;
+
             //
-            function refresh_page_like_count() {
-                $.ajax({
-                    url: FACEBOOK_GRAPH + APP_ID,
-                    dataType: 'json',
-                    success: function(data, status) {
-                        $('#page_like_count').html(data['likes']);
-                        console.log(data);
-                    },
-                    error: function(data, e1, e2) {
-                        console.log(data, e1, e2);
-                    }
-                })
+            function refresh_page_likes() {
+                setInterval(function(){
+                    $.ajax({
+                        url: FACEBOOK_GRAPH + APP_ID,
+                        dataType: 'json',
+                        success: function(data, status) {
+                            var new_likes_count = data['likes'];
+                            if (window.global_last_likes != new_likes_count) {
+                                window.global_last_likes = new_likes_count;
+                                console.log("updated like count");
+                                ui_update_likes();
+                            }
+                            //console.log(data);
+                            console.log("updating...");
+                        },
+                        error: function(data, e1, e2) {
+                            console.log(data, e1, e2);
+                        }
+                    })
+                }, REFRESH_PERIOD);
+            }
+
+            //
+            function ui_update_likes() {
+                var likes = window.global_last_likes;
+                if( likes >= 0 ) {
+                    $('#page_likes').fadeOut(FADE_PERIOD, function() {
+                        $('#page_likes').html(likes + " likes");
+                        $('#page_likes').fadeIn();
+                    });
+                }
+            }
+
+            //
+            function ui_update_like_url() {
+                var url = FACEBOOK_SHORT_URL + APP_ID;
+                $('#like_url').html('<a href=\"url\">'+url+'</a>');
+                $('#qrcode').qrcode(url);
             }
 
             // main
             $(document).ready(function () {
                 // Function code here.
-                refresh_page_like_count();
+                refresh_page_likes();
+                ui_update_like_url();
             });
 
         </script>
