@@ -1,0 +1,34 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <div id="page_like_count">Loading</div>
+        <script src="jquery-1.11.0.min.js"></script>
+        <script>
+            var APP_ID = "plate.tw";
+            var FACEBOOK_GRAPH = "https://graph.facebook.com/";
+
+            //
+            function refresh_page_like_count() {
+                $.ajax({
+                    url: FACEBOOK_GRAPH + APP_ID,
+                    dataType: 'json',
+                    success: function(data, status) {
+                        $('#page_like_count').html(data['likes']);
+                        console.log(data);
+                    },
+                    error: function(data, e1, e2) {
+                        console.log(data, e1, e2);
+                    }
+                })
+            }
+
+            // main
+            $(document).ready(function () {
+                // Function code here.
+                refresh_page_like_count();
+            });
+
+        </script>
+    </body>
+</html>
