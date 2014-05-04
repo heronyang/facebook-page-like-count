@@ -23,13 +23,19 @@
                 vertical-align:middle;
             }
             div {
-                margin: 20px;
+                margin: 40px;
+            }
+            #page_likes {
+                font-size: 120px;
+            }
+            #like_url {
+                font-size: 30px;
             }
         </style>
     </head>
     <body>
         <div class="vertical-center">
-            <div id="page_likes">Loading</div>
+            <div id="page_likes">Loading ...</div>
             <div id="qrcode"></div>
             <div id="like_url"></div>
         </div>
@@ -48,25 +54,30 @@
 
             //
             function refresh_page_likes() {
+                single_update();
                 setInterval(function(){
-                    $.ajax({
-                        url: FACEBOOK_GRAPH + APP_ID,
-                        dataType: 'json',
-                        success: function(data, status) {
-                            var new_likes_count = data['likes'];
-                            if (window.global_last_likes != new_likes_count) {
-                                window.global_last_likes = new_likes_count;
-                                console.log("updated like count");
-                                ui_update_likes();
-                            }
-                            //console.log(data);
-                            console.log("updating...");
-                        },
-                        error: function(data, e1, e2) {
-                            console.log(data, e1, e2);
-                        }
-                    })
+                    single_update();
                 }, REFRESH_PERIOD);
+            }
+
+            function single_update() {
+                $.ajax({
+                    url: FACEBOOK_GRAPH + APP_ID,
+                    dataType: 'json',
+                    success: function(data, status) {
+                        var new_likes_count = data['likes'];
+                        if (window.global_last_likes != new_likes_count) {
+                            window.global_last_likes = new_likes_count;
+                            console.log("updated like count");
+                            ui_update_likes();
+                        }
+                        //console.log(data);
+                        console.log("updating...");
+                    },
+                    error: function(data, e1, e2) {
+                        console.log("error: ", data, e1, e2);
+                    }
+                })
             }
 
             //
